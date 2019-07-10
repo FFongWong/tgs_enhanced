@@ -1,0 +1,18 @@
+extends layout
+
+block extra_head
+    link(rel='stylesheet', href='/stylesheets/style_dark.css')
+
+block nav
+  ul(class='nav nav-pills')
+    li(class='nav-item')
+      a(class='nav-link', href='/') #[i(class='fas fa-arrow-left')] Back
+    li(class='nav-item')
+      a(class='nav-link', href='/rvideo') #[i(class='fas fa-random')] Randomize
+    li(class='nav-item')
+      a(class='nav-link', href='/rvideo/lock') #[i(class='fas fa-lock')] Locked Player
+
+block content
+    .container-fluid
+        .embed-responsive.embed-responsive-16by9
+            video(src='/Videos/' + src controls='' autoplay='' loop='')

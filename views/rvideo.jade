@@ -1,0 +1,30 @@
+extends layout
+
+block extra_head
+    script(defer src='/javascripts/reloadEndedVideo.js')
+    link(rel='stylesheet', href='/stylesheets/style_dark.css')
+
+block nav
+  if !lock
+    ul(class='nav nav-pills')
+      li(class='nav-item')
+        a(class='nav-link', href='/') #[i(class='fas fa-arrow-left')] Back
+      li(class='nav-item')
+        a(class='nav-link', href='/rvideo') #[i(class='fas fa-random')] Randomize
+      li(class='nav-item')
+        a(class='nav-link', href='/rvideo/lock') #[i(class='fas fa-lock')] Locked Player
+
+block content
+    .container-fluid
+        .embed-responsive.embed-responsive-16by9
+            if lock
+                video(id='video_payer' src='/Videos/' + src autoplay='')
+            else
+                video(id='video_payer' src='/Videos/' + src controls='' autoplay='')
+
+
+link(rel='script', href='/javascripts/reloadEndedVideo.js')
+
+- function reloader(e) {  location.reload();}
+- document.getElementById('video_payer').addEventListener('ended',reloader,false);
+

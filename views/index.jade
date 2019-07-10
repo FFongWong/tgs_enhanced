@@ -1,0 +1,26 @@
+extends layout
+
+block nav
+  h1 #{title}
+  ul(class='nav nav-pills')
+    li(class='nav-item')
+      a(class='nav-link', href='/') #[i(class='fas fa-redo')] Refresh
+    li(class='nav-item')
+      a(class='nav-link', href='/thumbnailer') #[i(class='fas fa-images')] Thumbnailer
+    li(class='nav-item')
+      a(class='nav-link', href='/rvideo') #[i(class='fas fa-random')] Randomize
+    li(class='nav-item')
+        a(class='nav-link', href='/rvideo/lock') #[i(class='fas fa-lock')] Locked Player
+    li(class='nav-item')
+      a(class='nav-link disabled', href='#') #[i(class='fas fa-video')] Total videos: #{videos.length}
+  .mb-3
+
+block content
+  .container-fluid
+    .card-columns
+      each video in videos
+          a(href='/video/' + video)
+            .card
+              img(src='/Thumbnails/' + video + '.jpg', class='card-img-top')
+              .card-body
+                h5(class='card-title') #{video}
