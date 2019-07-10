@@ -19,7 +19,7 @@ router.get('/', function(req, res, next) {
       console.error(err);
     }
     else {
-      res.render('index', { title: 'The Good Stuff', videos: shuffle(files) });
+      res.render('index', { title: 'Channel Browser', videos: shuffle(files) });
     }
   });
   //res.render('index', { title: 'Express' });
