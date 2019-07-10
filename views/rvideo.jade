@@ -8,11 +8,11 @@ block nav
   if !lock
     ul(class='nav nav-pills')
       li(class='nav-item')
-        a(class='nav-link', href='/') #[i(class='fas fa-arrow-left')] Back
+        a(class='nav-link', href='#{backPath}') #[i(class='fas fa-arrow-left')] Back
       li(class='nav-item')
-        a(class='nav-link', href='/rvideo') #[i(class='fas fa-random')] Randomize
+        a(class='nav-link', href='/rvideo/#{channelPath}') #[i(class='fas fa-random')] Randomize
       li(class='nav-item')
-        a(class='nav-link', href='/rvideo/lock') #[i(class='fas fa-lock')] Locked Player
+        a(class='nav-link', href='/rvideo/#{channelPath}/lock') #[i(class='fas fa-lock')] Locked Player
 
 block content
     .container-fluid

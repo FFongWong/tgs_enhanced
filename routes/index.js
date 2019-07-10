@@ -4,49 +4,116 @@ var FfmpegCommand = require('fluent-ffmpeg');
 
 var router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  function shuffle(a) {
-    for (let i = a.length - 1; i > 0; i--) {
+
+
+function getFilenames(fileDirents, shuffle) {
+    
+    console.log(fileDirents);
+    
+    const shuffledFileNames = fileDirents.map(name => name);
+    
+// const shuffledFileNames = fileDirents
+// .filter(dirent => !dirent.isDirectory())
+// .map(dirent => dirent.name);
+    
+    for (let i = shuffledFileNames.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+        [shuffledFileNames[i], shuffledFileNames[j]] = [shuffledFileNames[j], shuffledFileNames[i]];
     }
-    return a;
-  }
+    return shuffledFileNames;
+}
 
-  fs.readdir('./public/Videos', function(err, files) {
-    if(err) {
-      console.error(err);
-    }
-    else {
-      res.render('index', { title: 'Channel Browser', videos: shuffle(files) });
-    }
-  });
-  //res.render('index', { title: 'Express' });
-});
-
-router.get('/video/:name', function(req, res, next) {
-  res.render('video', {src: req.params.name});
-});
+function getChannelNames(fileDirents) {
+    
+    console.log(fileDirents);
+    
+    const channelNames = fileDirents.map(name => name);;
+    
+// const channelNames = fileDirents
+// .filter(dirent => dirent.isDirectory())
+// .map(dirent => dirent.name);
+    
+    return channelNames;
+}
 
 
-router.get('/rvideo/:lock?', function(req, res, next) {
-
-  fs.readdir('./public/Videos', function(err, files) {
-    if(err) {
-      console.error(err);
-    }
-    else {
-      const randIndex = Math.floor(Math.random() * files.length);
+/* GET home page. */
+router.get('/:channel?', function(req, res, next) {
+  
+    const channelPath     = req.params.channel == undefined ? 'root' : req.params.channel;
+    const channelName = req.params.channel == undefined ? false : req.params.channel;
+    const browserTitle = channelName ? 'Channel Browser: ' + channelName : 'Channel Browser';
+    const channelFilePath = channelName ? './public/Videos/' + channelName : './public/Videos/';
       
-      res.render('rvideo', {src: files[randIndex], lock: req.params.lock});
-    }
-  });
+        
+    fs.readdir(channelFilePath, {withFileTypes: true}, function(err, fileDirents) {
+        if(err) {
+            console.error(err);
+        }
+        else {
+            res.render('index', { title:       browserTitle, 
+                                  channels:    getChannelNames(fileDirents),
+                                  videos:      getFilenames(fileDirents, true), 
+                                  channelPath: channelPath, 
+                                  channelName: channelName 
+                              });
+        }
+    });
+  // res.render('index', { title: 'Express' });
+});
+
+
+
+router.get('/video/:channel/:name', function(req, res, next) {    
+    
+    const channelPath = req.params.channel;
+    const channelName = req.params.channel == 'root' ? false : req.params.channel;
+    const channelFilePath = channelName ? './public/Videos/' + channelName : './public/Videos/';
+    const backPath        = req.params.channel == 'root' ? '/' : '/'+ req.params.channel;
+    
+    const filePath     = req.params.channel == 'root' ? req.params.name : req.params.channel + '/'+ req.params.name;
+    
+    res.render('video', { src: filePath, 
+                          backPath: backPath, 
+                          channelPath: channelPath, 
+                          channelName: channelName 
+                        });
+});
+
+
+
+router.get('/rvideo/:channel/:lock?', function(req, res, next) {
+
+    const channelPath     = req.params.channel;
+    const channelName     = req.params.channel == 'root' ? false : req.params.channel;
+    const channelFilePath = channelName ? './public/Videos/' + channelName : './public/Videos/';
+    const backPath        = req.params.channel == 'root' ? '/' : '/'+ req.params.channel;
+    
+    fs.readdir(channelFilePath, function(err, fileDirents) {
+        if(err) {
+          console.error(err);
+        }
+        else {
+            
+          const randomFile = getFilenames(fileDirents, true)[0];
+          const filePath     = req.params.channel == 'root' ? randomFile : req.params.channel + '/'+ randomFile;
+          
+          res.render('rvideo', { src: filePath, 
+                                 lock: req.params.lock,
+                                 backPath: backPath, 
+                                 channelPath: channelPath, 
+                                 channelName: channelName 
+                    });
+          
+        }
+    });
 
   
 });
 
-router.get('/thumbnailer', function(req, res, next) {
+
+
+router.get('/thumbnailer/:channel', function(req, res, next) {
   fs.readdir('./public/Videos', function(err, files) {
     if(err) {
       console.error(err);
