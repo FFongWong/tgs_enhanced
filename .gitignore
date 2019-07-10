@@ -3,6 +3,7 @@
 public/Videos/*
 .DS_Store
 public/.DS_Store
+.project
 
 # Logs
 logs
