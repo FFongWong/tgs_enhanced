@@ -5,8 +5,8 @@ block extra_head
     link(rel='stylesheet', href='/stylesheets/style_dark.css')
 
 block nav
-  if !lock
-    ul(class='nav nav-pills')
+  ul(class='nav nav-pills')
+    if !lock
       li(class='nav-item')
         a(class='nav-link', href='#{backPath}') #[i(class='fas fa-arrow-left')] Back to #{channelName}
       li(class='nav-item')
@@ -15,7 +15,8 @@ block nav
         a(class='nav-link', href='/rvideo/#{channelPath}/lock') #[i(class='fas fa-lock')] Locked Player
       li(class='nav-item')
         a(class='nav-link', href='/video/#{channelPath}/auto/#{currentName}') #[i(class='fas fa-play')] Auto
-   
+    li(class='nav-item')
+      a(class='nav-link disabled', href='#') #[i(class='fas fa-video')] Now playing: #{currentName}
 
 block content
     .container-fluid

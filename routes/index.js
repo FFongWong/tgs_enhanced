@@ -74,9 +74,10 @@ function processChannelFiles(channelPath, currentName, shuffle, callback) {
             const channelFilePath = channelName ? rootFilePath + channelName : rootFilePath;
             
             var fileNames = getFileNames( fs.readdirSync(channelFilePath, {withFileTypes: true}), shuffle) ;
+            var filePaths = [] ;
             
             fileNames.forEach(function(nameItem, nameIndex) {
-                callbackObject['filePaths'][nameIndex] = channelItem == 'root' ? nameItem : channelItem + '/'+ nameItem;
+            	filePaths[nameIndex] = channelItem == 'root' ? nameItem : channelItem + '/'+ nameItem;
             });
             
             if(fileNames.includes(currentName)) {
@@ -87,6 +88,7 @@ function processChannelFiles(channelPath, currentName, shuffle, callback) {
             }
             
             callbackObject['fileNames'] = callbackObject['fileNames'].concat(fileNames);
+            callbackObject['filePaths'] = callbackObject['filePaths'].concat(filePaths);
             
         });
         
@@ -95,6 +97,7 @@ function processChannelFiles(channelPath, currentName, shuffle, callback) {
             for (let i = callbackObject['fileNames'].length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [callbackObject['fileNames'][i], callbackObject['fileNames'][j]] = [callbackObject['fileNames'][j], callbackObject['fileNames'][i]];
+                [callbackObject['filePaths'][i], callbackObject['filePaths'][j]] = [callbackObject['filePaths'][j], callbackObject['filePaths'][i]];
             }
         }   
         
@@ -112,6 +115,9 @@ function processChannelFiles(channelPath, currentName, shuffle, callback) {
         
         
         callbackObject['channelNames'] = ['all'].concat(callbackObject['channelNames']);
+        
+        
+//        console.log("CALLBACK OBJECT: ", callbackObject);
     
     } catch (thrownError) {
         error = thrownError;

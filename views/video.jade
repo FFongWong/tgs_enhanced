@@ -23,6 +23,8 @@ block nav
             a(class='nav-link', href='/video/#{channelPath}/loop/#{currentName}') #[i(class='fas fa-pause')] Loop
       li(class='nav-item')
         a(id='next_link', class='nav-link', href='/video/#{channelPath}/#{mode}/#{nextFile}') #[i(class='fas fa-forward')] Next
+      li(class='nav-item')
+        a(class='nav-link disabled', href='#') #[i(class='fas fa-video')] Now playing: #{currentName}
 
 block content
     .container-fluid
