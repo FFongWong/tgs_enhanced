@@ -218,33 +218,36 @@ router.get('/thumbnailer/:channel', function(req, res, next) {
 	      console.error(error);
 	    }
 	    else {
-	      const files = callbackObject['filePaths'];
+	      const filePaths = callbackObject['filePaths'];
+	      const fileNames = callbackObject['fileNames'];
 	      
-	      console.log('CALLBACK', callbackObject);
-	      console.log('CONVERTING', files);
+//	      console.log('CALLBACK', callbackObject);
 	    	
-	      function convertNow(files, counter) {
+	      function convertNow(filePaths, fileNames, counter) {
 	        try {
-	          if (!fs.existsSync('./public/Thumbnails/' + files[counter] + '.jpg')) {
+	          if (!fs.existsSync('./public/Thumbnails/' + filePaths[counter] + '.jpg')) {
 	            let command = new FfmpegCommand();
-	            console.log('CONVERTING: ' + files[counter]);
-	            command.input('./public/Videos/' + files[counter])
+	            
+	            const fullFilePath = './public/Videos/' + filePaths[counter];
+	            console.log('CONVERTING: ' + fullFilePath);
+	            
+	            command.input(fullFilePath)
 	            .screenshots({
 	              timestamps: ['50%'],
-	              filename: files[counter] + '.jpg',
+	              filename: fileNames[counter] + '.jpg',
 	              folder: './public/Thumbnails/',
 	            })
 	            .on('end', function() {
 	              counter++;
-	              if(counter < files.length) {
-	                convertNow(files, counter);
+	              if(counter < filePaths.length) {
+	            	  convertNow(filePaths, fileNames, counter);
 	              }
 	            });
 	          }
 	          else {
 	            counter++;
-	            if(counter < files.length) {
-	              convertNow(files, counter);
+	            if(counter < filePaths.length) {
+	            	convertNow(filePaths, fileNames, counter);
 	            }
 	          }
 	        } catch(error) {
@@ -252,7 +255,7 @@ router.get('/thumbnailer/:channel', function(req, res, next) {
 	        }
 	      }
 	
-	      convertNow(files, 0);
+	      convertNow(filePaths, fileNames, 0);
 	    }
 	});
 	res.redirect('/' + channelPath);
