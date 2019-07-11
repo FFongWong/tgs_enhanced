@@ -1,6 +1,7 @@
 # App specific
 
 public/Videos/*
+public/Thumbnails/*
 .DS_Store
 public/.DS_Store
 .project

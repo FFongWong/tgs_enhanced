@@ -8,7 +8,7 @@ var router = express.Router();
 
 function getFileNames(fileDirents, shuffle) {
     
-    console.log("FILES", fileDirents);
+//    console.log("FILES", fileDirents);
     
     const fileNames = fileDirents[0].isDirectory == undefined ?  fileDirents.map(name => name) :
                                                           fileDirents
@@ -26,7 +26,7 @@ function getFileNames(fileDirents, shuffle) {
 
 function getChannelNames(fileDirents) {
     
-    console.log("CHANNELS", fileDirents);
+//    console.log("CHANNELS", fileDirents);
     
     const channelNames =  fileDirents[0].isDirectory == undefined ? fileDirents.map(name => name):
 									  fileDirents
@@ -185,16 +185,12 @@ router.get('/rvideo/:channel/:lock?', function(req, res, next) {
     const channelFilePath = channelName ? './public/Videos/' + channelName : './public/Videos/';
     const backPath        = channelPath == 'root' ? '/' : '/'+ channelPath;
     
-//    fs.readdir(channelFilePath, {withFileTypes: true}, function(error, fileDirents) {
     processChannelFiles(channelPath, false, true, function(error, callbackObject) {
         if(error) {
           console.error(error);
         }
         else {
             
-//          const randomFile = getFileNames(fileDirents, true)[0];
-//          const filePath     = channelPath == 'root' ? randomFile : channelPath + '/'+ randomFile;
-          
           res.render('rvideo', { filePath: callbackObject['currentPath'], 
                                  currentName: callbackObject['currentName'],                  
                                  prevFile: callbackObject['prevFile'],                  
@@ -214,44 +210,52 @@ router.get('/rvideo/:channel/:lock?', function(req, res, next) {
 
 
 router.get('/thumbnailer/:channel', function(req, res, next) {
-  fs.readdir('./public/Videos', function(error, files) {
-    if(error) {
-      console.error(error);
-    }
-    else {
-      function convertNow(files, counter) {
-        try {
-          if (!fs.existsSync('./public/Thumbnails/' + files[counter] + '.jpg')) {
-            let command = new FfmpegCommand();
-            console.log('CONVERTING: ' + files[counter]);
-            command.input('./public/Videos/' + files[counter])
-            .screenshots({
-              timestamps: ['50%'],
-              filename: files[counter] + '.jpg',
-              folder: './public/Thumbnails/',
-            })
-            .on('end', function() {
-              counter++;
-              if(counter < files.length) {
-                convertNow(files, counter);
-              }
-            });
-          }
-          else {
-            counter++;
-            if(counter < files.length) {
-              convertNow(files, counter);
-            }
-          }
-        } catch(error) {
-          console.error(error)
-        }
-      }
-
-      convertNow(files, 0);
-    }
-  });
-  res.redirect('/');
+	const channelPath  = req.params.channel == undefined ? 'root' : req.params.channel;
+	
+	processChannelFiles(channelPath, false, false, function(error, callbackObject) {
+//  fs.readdir('./public/Videos', function(error, files) {
+	    if(error) {
+	      console.error(error);
+	    }
+	    else {
+	      const files = callbackObject['filePaths'];
+	      
+	      console.log('CALLBACK', callbackObject);
+	      console.log('CONVERTING', files);
+	    	
+	      function convertNow(files, counter) {
+	        try {
+	          if (!fs.existsSync('./public/Thumbnails/' + files[counter] + '.jpg')) {
+	            let command = new FfmpegCommand();
+	            console.log('CONVERTING: ' + files[counter]);
+	            command.input('./public/Videos/' + files[counter])
+	            .screenshots({
+	              timestamps: ['50%'],
+	              filename: files[counter] + '.jpg',
+	              folder: './public/Thumbnails/',
+	            })
+	            .on('end', function() {
+	              counter++;
+	              if(counter < files.length) {
+	                convertNow(files, counter);
+	              }
+	            });
+	          }
+	          else {
+	            counter++;
+	            if(counter < files.length) {
+	              convertNow(files, counter);
+	            }
+	          }
+	        } catch(error) {
+	          console.error(error)
+	        }
+	      }
+	
+	      convertNow(files, 0);
+	    }
+	});
+	res.redirect('/' + channelPath);
 });
 
 module.exports = router;
