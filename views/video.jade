@@ -5,14 +5,17 @@ block extra_head
     link(rel='stylesheet', href='/stylesheets/style_dark.css')
 
 block nav
-  if !lock
-    ul(class='nav nav-pills')
+  ul(class='nav nav-pills')
+    if lock
+      li(class='nav-item')
+        a(class='nav-link', href='/video/#{channelPath}/#{mode}/#{currentName}') #[i(class='fas fa-unlock')]&nbsp;
+    else
       li(class='nav-item')
         a(class='nav-link', href='#{backPath}') #[i(class='fas fa-arrow-left')] Back to #{channelName}
       li(class='nav-item')
         a(class='nav-link', href='/rvideo/#{channelPath}') #[i(class='fas fa-random')] Randomize
       li(class='nav-item')
-        a(class='nav-link', href='/rvideo/#{channelPath}/lock') #[i(class='fas fa-lock')] Locked Player
+        a(class='nav-link', href='/video/#{channelPath}/#{mode}/#{currentName}/lock') #[i(class='fas fa-lock')] Locked Player
       li(class='nav-item')
         a(class='nav-link', href='/video/#{channelPath}/#{mode}/#{prevFile}') #[i(class='fas fa-backward')] Prev
       if mode == 'loop'
@@ -22,14 +25,20 @@ block nav
           li(class='nav-item')
             a(class='nav-link', href='/video/#{channelPath}/loop/#{currentName}') #[i(class='fas fa-pause')] Loop
       li(class='nav-item')
-        a(id='next_link', class='nav-link', href='/video/#{channelPath}/#{mode}/#{nextFile}') #[i(class='fas fa-forward')] Next
-      li(class='nav-item')
-        a(class='nav-link disabled', href='#') #[i(class='fas fa-video')] Now playing: #{currentName}
+        a(class='nav-link', href='/video/#{channelPath}/#{mode}/#{nextFile}') #[i(class='fas fa-forward')] Next
+    li(class='nav-item')
+      a(class='nav-link disabled', href='#') #[i(class='fas fa-video')] Now playing: #{currentName}
 
 block content
     .container-fluid
         .embed-responsive.embed-responsive-16by9
             if mode == 'auto'
-                video(id='video_payer' src='/Videos/' + filePath controls='' autoplay='' class='autoNext')
+                if lock
+                    video(id='video_payer' src='/Videos/' + filePath autoplay='' class='autoNext' next_link='/video/#{channelPath}/#{mode}/#{nextFile}/lock')
+                else
+                    video(id='video_payer' src='/Videos/' + filePath controls='' autoplay='' class='autoNext' next_link='/video/#{channelPath}/#{mode}/#{nextFile}')
             else
-                video(id='video_payer' src='/Videos/' + filePath controls='' autoplay='' loop='')
+                if lock
+                    video(id='video_payer' src='/Videos/' + filePath autoplay='' loop='')
+                else
+                    video(id='video_payer' src='/Videos/' + filePath controls='' autoplay='' loop='')

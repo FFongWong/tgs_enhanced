@@ -6,7 +6,10 @@ block extra_head
 
 block nav
   ul(class='nav nav-pills')
-    if !lock
+    if lock
+      li(class='nav-item')
+        a(class='nav-link', href='/rvideo/#{channelPath}') #[i(class='fas fa-unlock')] &nbsp;
+    else
       li(class='nav-item')
         a(class='nav-link', href='#{backPath}') #[i(class='fas fa-arrow-left')] Back to #{channelName}
       li(class='nav-item')

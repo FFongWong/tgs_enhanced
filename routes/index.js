@@ -1,8 +1,31 @@
 var express = require('express');
+var cookieParser = require('cookie-parser')
 var fs = require('fs');
 var FfmpegCommand = require('fluent-ffmpeg');
 
 var router = express.Router();
+
+//need cookieParser middleware before we can do anything with cookies
+express().use(cookieParser());
+
+// set a cookie
+express().use(function (req, res, next) {
+  // check if client sent cookie
+  var cookie = req.cookies.prevFilename;
+  if (cookie === undefined)
+  {
+    // no: set a new cookie
+    res.cookie('prevFilename',false, { maxAge: 900000, httpOnly: true });
+//    console.log('cookie created successfully');
+  } 
+  else
+  {
+    // yes, cookie was already present 
+//    console.log('cookie exists', cookie);
+  } 
+  next(); 
+});
+
 
 
 
@@ -36,15 +59,9 @@ function getChannelNames(fileDirents) {
     return channelNames;
 }
 
-function processChannelFiles(channelPath, currentName, shuffle, callback) {
+function processChannelFiles(channelPath, currentName, shuffle, req, res, callback) {
     
     const rootFilePath = './public/Videos/' ;
-    
-//    const channelFilePath = channelName ? rootFilePath + channelName : rootFilePath;
-    
-//    fs.readdir(channelFilePath, {withFileTypes: true}, function(err, fileDirents) {
-//        callback(err, fileDirents);
-//    });
     
     var callbackObject = {
         fileNames:     [],
@@ -102,10 +119,19 @@ function processChannelFiles(channelPath, currentName, shuffle, callback) {
         }   
         
         if(!currentName) {
-        	callbackObject['currentName'] = callbackObject['fileNames'][0];;
-            callbackObject['currentPath'] = callbackObject['filePaths'][0];;
+        	callbackObject['currentName'] = callbackObject['fileNames'][0];
+            callbackObject['currentPath'] = callbackObject['filePaths'][0];
             
+            if(req.cookies.prevFilename && req.cookies.prevFilename == callbackObject['currentName'] && callbackObject['fileNames'][1] != undefined) {
+                callbackObject['currentName'] = callbackObject['fileNames'][1];
+                callbackObject['currentPath'] = callbackObject['filePaths'][1];
+            }
         }
+        
+        res.cookie('prevFilename',callbackObject['currentName'], { maxAge: 900000, httpOnly: true });
+        
+        console.log('CURRENT FILE IS', callbackObject['currentName']);
+        
         
         if(currentName) {
             const currentIndex = callbackObject['fileNames'].indexOf(currentName);
@@ -136,7 +162,7 @@ router.get('/:channel?', function(req, res, next) {
     
       
         
-    processChannelFiles(channelPath, false, false, function(error, callbackObject) {
+    processChannelFiles(channelPath, false, false, req, res, function(error, callbackObject) {
         if(error) {
             console.error(error);
         }
@@ -154,7 +180,7 @@ router.get('/:channel?', function(req, res, next) {
 
 
 
-router.get('/video/:channel/:mode/:name', function(req, res, next) {    
+router.get('/video/:channel/:mode/:name/:lock?', function(req, res, next) {    
     
     const channelPath = req.params.channel;
     const channelName = channelPath == 'root' ? false : channelPath;
@@ -162,7 +188,7 @@ router.get('/video/:channel/:mode/:name', function(req, res, next) {
     
     const mode =  ['loop', 'auto'].includes(req.params.mode) ? req.params.mode : 'loop';
     
-    processChannelFiles(channelPath, req.params.name, false, function(error, callbackObject) {
+    processChannelFiles(channelPath, req.params.name, false, req, res, function(error, callbackObject) {
         if(error) {
             console.error(error);
         }
@@ -174,6 +200,7 @@ router.get('/video/:channel/:mode/:name', function(req, res, next) {
                                   prevFile: callbackObject['prevFile'],                  
                                   nextFile: callbackObject['nextFile'],                  
                                   backPath: backPath, 
+                                  lock: req.params.lock,
                                   mode: mode, 
                                   channelPath: channelPath, 
                                   channelName: channelName ? channelName : "Home" 
@@ -191,7 +218,7 @@ router.get('/rvideo/:channel/:lock?', function(req, res, next) {
     const channelFilePath = channelName ? './public/Videos/' + channelName : './public/Videos/';
     const backPath        = channelPath == 'root' ? '/' : '/'+ channelPath;
     
-    processChannelFiles(channelPath, false, true, function(error, callbackObject) {
+    processChannelFiles(channelPath, false, true, req, res, function(error, callbackObject) {
         if(error) {
           console.error(error);
         }
@@ -201,8 +228,8 @@ router.get('/rvideo/:channel/:lock?', function(req, res, next) {
                                  currentName: callbackObject['currentName'],                  
                                  prevFile: callbackObject['prevFile'],                  
                                  nextFile: callbackObject['nextFile'],   
-                                 lock: req.params.lock,
                                  backPath: backPath, 
+                                 lock: req.params.lock,
                                  channelPath: channelPath, 
                                  channelName: channelName ? channelName : "Home" 
                     });
@@ -218,7 +245,7 @@ router.get('/rvideo/:channel/:lock?', function(req, res, next) {
 router.get('/thumbnailer/:channel', function(req, res, next) {
 	const channelPath  = req.params.channel == undefined ? 'root' : req.params.channel;
 	
-	processChannelFiles(channelPath, false, false, function(error, callbackObject) {
+	processChannelFiles(channelPath, false, false, req, res, function(error, callbackObject) {
 //  fs.readdir('./public/Videos', function(error, files) {
 	    if(error) {
 	      console.error(error);

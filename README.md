@@ -9,6 +9,7 @@ TGS is a small, lightweight NodeJS/Express based local web application that lets
 **Download**
 
 *MEGA*: 
+
 *GitHub*: https://github.com/FFongWong/tgs_enhanced
 
 Note: if you clone/download from GitHub, you'll need to manually create the public/Videos and public/Thumbnails directories.
@@ -78,15 +79,13 @@ Note: This toggle triggers a page refresh, meaning you can't change your mind la
 
 As you might expect, this mode plays random videos from your current channel. This button appears at the top of both browser and viewer screens so you can quickly jump into the randomized player mode for your current channel from whereever you are, and so that you can quickly trigger a new random video when already in randomize mode. (While in randomize mode there will also be a button to swap back to auto-play mode from your currently selected video
 
-Note: By random, I mean truly random -- meaning you can often end up rolling the same video multiple times in a row. Currently the application is stateless both on the client and server side, and thus has no facility to prevent repeats. Like the dynamic auto/loop toogle, it really wouldn't be too hard to implement, and if I do any additional work on this project it will probably be to fix this, since it's already quite annoying even in the small amount of testing I've done myself.
+Note: A simple cookie is used to prevent the same video from being chosen twice in a row. If for some reason cookies don't work, you might get repeats fairly often, particularly if your channel doesn't have many videos to select from. 
 
 
 
 *Locked Player Mode*
 
-When activated, all controls are removed and the player simply runs in randomized mode until you hit browser back. This allows you to create simple kiosk/dump terminal style displays in VAM that just continually play your videos without distracting UI elements when you don't need them.
-
-Note: I intially built this on top of randomize mode, and only realized it would be nice in auto-play mode as well at a point where it became a bit troublesome to implement. Fixing this is also high on the hit list along with repeat prevention in random mode.
+When activated, all controls are removed and the player simply runs in randomized, loop, or auto-play mode until you hit browser back. This allows you to create simple kiosk/dump terminal style displays in VAM that just continually play your videos without distracting UI elements when you don't need them.
 
 
 

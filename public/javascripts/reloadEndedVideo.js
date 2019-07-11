@@ -1,5 +1,5 @@
 const videoPlayer = document.getElementById('video_payer');
-const nextLink = document.getElementById('next_link');
+const nextLink = videoPlayer.getAttribute('next_link');
 
 
 function reloader(e) {
@@ -7,8 +7,8 @@ function reloader(e) {
 }
 
 function autoNext(e) {
-    console.log("Loading next: ", nextLink.href);
-    location.assign(nextLink.href);
+    console.log("Loading next: ", nextLink);
+    location.assign(nextLink);
 }
 
 if(videoPlayer.className == 'autoNext') {
