@@ -3,15 +3,15 @@ extends layout
 block nav
   h1 #{title}
   ul(class='nav nav-pills')
-    if channelName
+    if channelName != "Home"
         li(class='nav-item')
-            a(class='nav-link', href='/') #[i(class='fas fa-arrow-left')] Back
+            a(class='nav-link', href='/') #[i(class='fas fa-arrow-left')] Back to Home
     li(class='nav-item')
       a(class='nav-link', href='') #[i(class='fas fa-redo')] Refresh
     li(class='nav-item')
       a(class='nav-link', href='/thumbnailer/#{channelPath}') #[i(class='fas fa-images')] Thumbnailer
     li(class='nav-item')
-      a(class='nav-link', href='/rvideo/#{channelPath}') #[i(class='fas fa-random')] Play Random
+      a(class='nav-link', href='/rvideo/#{channelPath}') #[i(class='fas fa-random')] Randomize
     li(class='nav-item')
         a(class='nav-link', href='/rvideo/#{channelPath}/lock') #[i(class='fas fa-lock')] Locked Player
     li(class='nav-item')

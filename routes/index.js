@@ -8,13 +8,12 @@ var router = express.Router();
 
 function getFileNames(fileDirents, shuffle) {
     
-    console.log(fileDirents);
+    console.log("FILES", fileDirents);
     
-    const fileNames = fileDirents.map(name => name);
-    
-// const shuffledFileNames = fileDirents
-// .filter(dirent => !dirent.isDirectory())
-// .map(dirent => dirent.name);
+    const fileNames = fileDirents[0].isDirectory == undefined ?  fileDirents.map(name => name) :
+                                                          fileDirents
+														 .filter(dirent => !dirent.isDirectory())
+														 .map(dirent => dirent.name);
     
     if(shuffle) {
         for (let i = fileNames.length - 1; i > 0; i--) {
@@ -27,13 +26,12 @@ function getFileNames(fileDirents, shuffle) {
 
 function getChannelNames(fileDirents) {
     
-    console.log(fileDirents);
+    console.log("CHANNELS", fileDirents);
     
-    const channelNames = fileDirents.map(name => name);;
-    
-// const channelNames = fileDirents
-// .filter(dirent => dirent.isDirectory())
-// .map(dirent => dirent.name);
+    const channelNames =  fileDirents[0].isDirectory == undefined ? fileDirents.map(name => name):
+									  fileDirents
+									 .filter(dirent => dirent.isDirectory())
+									 .map(dirent => dirent.name);
     
     return channelNames;
 }
@@ -64,7 +62,7 @@ function processChannelFiles(channelPath, currentName, shuffle, callback) {
     
     try {
     
-        var channelDirents = fs.readdirSync(rootFilePath, {rootFilePath: true}) ;
+        var channelDirents = fs.readdirSync(rootFilePath, {withFileTypes: true}) ;
         callbackObject['channelNames'] = getChannelNames(channelDirents);
         
         if(channelPath == 'all') {
@@ -101,8 +99,7 @@ function processChannelFiles(channelPath, currentName, shuffle, callback) {
         }   
         
         if(!currentName) {
-            currentName = 
-
+        	callbackObject['currentName'] = callbackObject['fileNames'][0];;
             callbackObject['currentPath'] = callbackObject['filePaths'][0];;
             
         }
@@ -113,6 +110,8 @@ function processChannelFiles(channelPath, currentName, shuffle, callback) {
             callbackObject['nextFile'] = callbackObject['fileNames'][currentIndex + 1] != undefined ? callbackObject['fileNames'][currentIndex + 1] : callbackObject['fileNames'][0];
         }
         
+        
+        callbackObject['channelNames'] = ['all'].concat(callbackObject['channelNames']);
     
     } catch (thrownError) {
         error = thrownError;
