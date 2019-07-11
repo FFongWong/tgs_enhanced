@@ -47,7 +47,7 @@ Here's the documentation for the original project from u/SarahEiha
 > FFmpeg is included with the source code and that's why it's 75MB. The source code is there if you wish to modify it. No restrictions from me!
 
 
-**Features added in tgs_enhanced** 
+**Features I've added in tgs_enhanced** 
 
 *Channels*
 
@@ -96,5 +96,8 @@ All player modes now tell you the name of the file playing. Helpful if you decid
 Note: This shows in Locked mode as well. Maybe it shouldn't? I'm not really sure.
 
 
+**What comes next?**
 
-
+- If someone with good design skills wanted to take a swing at putting together an appealing set of styles for the project, I don't think anyone would object.
+- Someone could also build in support for nested directories. I wouldn't NOT use it, but I also don't want it enough to do it myself. ;)
+- The auto/loop toggle could be made dynamic. As with nexted directories, though, my personal use cases for that aren't strong enough to inspire me to do it now.
