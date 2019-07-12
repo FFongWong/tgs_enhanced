@@ -6,28 +6,31 @@ block extra_head
 
 block nav
   ul(class='nav nav-pills')
-    if lock
+    if lock && lock != 'hard-lock'
       li(class='nav-item')
-        a(class='nav-link', href='/video/#{channelPath}/#{mode}/#{currentName}') #[i(class='fas fa-unlock')]&nbsp;
-    else
+        a(class='btn btn-dark', href='/video/#{channelPath}/#{mode}/#{currentName}') #[i(class='fas fa-lock-open')]
       li(class='nav-item')
-        a(class='nav-link', href='#{backPath}') #[i(class='fas fa-arrow-left')] Back to #{channelName}
+        a(class='btn btn-dark', href='/video/#{channelPath}/#{mode}/#{currentName}/hard-lock') #[i(class='fas fa-eye-slash')]
+    else if !lock
       li(class='nav-item')
-        a(class='nav-link', href='/rvideo/#{channelPath}') #[i(class='fas fa-random')] Randomize
+        a(class='btn btn-dark', href='#{backPath}') #[i(class='fas fa-arrow-left')] Back to #{channelName}
       li(class='nav-item')
-        a(class='nav-link', href='/video/#{channelPath}/#{mode}/#{currentName}/lock') #[i(class='fas fa-lock')] Locked Player
+        a(class='btn btn-dark', href='/rvideo/#{channelPath}') #[i(class='fas fa-random')] Randomize
       li(class='nav-item')
-        a(class='nav-link', href='/video/#{channelPath}/#{mode}/#{prevFile}') #[i(class='fas fa-backward')] Prev
+        a(class='btn btn-dark', href='/video/#{channelPath}/#{mode}/#{currentName}/lock') #[i(class='fas fa-lock')] Locked Player
+      li(class='nav-item')
+        a(class='btn btn-dark', href='/video/#{channelPath}/#{mode}/#{prevFile}') #[i(class='fas fa-backward')] Prev
       if mode == 'loop'
           li(class='nav-item')
-            a(class='nav-link', href='/video/#{channelPath}/auto/#{currentName}') #[i(class='fas fa-play')] Auto
+            a(class='btn btn-dark', href='/video/#{channelPath}/auto/#{currentName}') #[i(class='fas fa-play')] Auto
       else
           li(class='nav-item')
-            a(class='nav-link', href='/video/#{channelPath}/loop/#{currentName}') #[i(class='fas fa-pause')] Loop
+            a(class='btn btn-dark', href='/video/#{channelPath}/loop/#{currentName}') #[i(class='fas fa-pause')] Loop
       li(class='nav-item')
-        a(class='nav-link', href='/video/#{channelPath}/#{mode}/#{nextFile}') #[i(class='fas fa-forward')] Next
-    li(class='nav-item')
-      a(class='nav-link disabled', href='#') #[i(class='fas fa-video')] Now playing: #{currentName}
+        a(class='btn btn-dark', href='/video/#{channelPath}/#{mode}/#{nextFile}') #[i(class='fas fa-forward')] Next
+    if !lock || (lock && lock != 'hard-lock')
+        li(class='nav-item')
+          a(class='btn btn-dark disabled', href='#') #[i(class='fas fa-video')] Now playing: #{currentName}
 
 block content
     .container-fluid

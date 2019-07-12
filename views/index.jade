@@ -3,31 +3,39 @@ extends layout
 block nav
   h1 #{title}
   ul(class='nav nav-pills')
-    if channelName != "Home"
-        li(class='nav-item')
-            a(class='nav-link', href='/') #[i(class='fas fa-arrow-left')] Back to Home
+    
     li(class='nav-item')
-        a(class='nav-link', href='') #[i(class='fas fa-redo')] Refresh
+        a(class='btn btn-dark', href='') #[i(class='fas fa-redo')] Refresh
     li(class='nav-item')
-        a(class='nav-link', href='/thumbnailer/#{channelPath}') #[i(class='fas fa-images')] Thumbnailer
+        a(class='btn btn-dark', href='/thumbnailer/#{channelPath}') #[i(class='fas fa-images')] Thumbnailer
     li(class='nav-item')
-        a(class='nav-link', href='/rvideo/#{channelPath}') #[i(class='fas fa-random')] Randomize
+        a(class='btn btn-dark', href='/rvideo/#{channelPath}') #[i(class='fas fa-random')] Randomize
     li(class='nav-item')
-        a(class='nav-link', href='/video/#{channelPath}/auto/#{videos[0]}') #[i(class='fas fa-play')] Auto Play
+        a(class='btn btn-dark', href='/video/#{channelPath}/auto/#{videos[0]}') #[i(class='fas fa-play')] Auto Play
     li(class='nav-item')
-      a(class='nav-link disabled', href='#') #[i(class='fas fa-video')] Total videos: #{videos.length}
+      a(class='btn btn-dark disabled', href='#') #[i(class='fas fa-video')] Total videos: #{videos.length}
       
+  ul(class='nav btn-group-toggle')
+      li(class='nav-item')
+        a(class='btn btn-dark', href='/') 
+          h4(class='card-title fas fa-home') Home
+      li(class='nav-item')
+        a(class='btn btn-dark', href='/All') 
+          h4(class='card-title fas fa-folder-plus')&nbsp;All
+      each channel in channels
+        if channel == channelPath
+            li(class="nav-item active")
+              a(href='/#{channel}/' class='btn btn-dark')
+                h4(class='card-title  fas fa-folder-open')&nbsp;#{channel}
+        else
+            li(class="nav-item")
+              a(href='/#{channel}/' class='btn btn-dark')
+                h4(class='card-title  fas fa-folder')&nbsp;#{channel}
   .mb-3
+                
 
 block content
-  .container-fluid
-    .card-columns
-      each channel in channels
-          a(href='/#{channel}/')
-            .card
-              .card-body
-                h5(class='card-title') #{channel}
-                
+
   .container-fluid
     .card-columns
       each video in videos

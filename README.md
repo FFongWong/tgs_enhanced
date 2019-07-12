@@ -87,13 +87,13 @@ Note: A simple cookie is used to prevent the same video from being chosen twice 
 
 When activated, all controls are removed and the player simply runs in randomized, loop, or auto-play mode until you hit browser back. This allows you to create simple kiosk/dump terminal style displays in VAM that just continually play your videos without distracting UI elements when you don't need them.
 
+Note: There are two levels of locked mode. When first entering the locked player the menu bar will still provide an unlock button the now playing display. Click the "hide view" button from there, and the menu bar will disappear entirely. When locked and hidden, browser back will be the only way to bring back the menu bar.
+
 
 
 *Now Playing Display*
 
 All player modes now tell you the name of the file playing. Helpful if you decide you want to move/change/delete a video while watching it, but aren't familar enough with the contents of your library to know the file name from the content of the video.
-
-Note: This shows in Locked mode as well. Maybe it shouldn't? I'm not really sure.
 
 
 **What comes next?**
