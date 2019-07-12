@@ -1,8 +1,10 @@
 # tgs_enhanced
-An enhanced version of u/SarahEiha's TGS, a simple webm library viewer and player found here:  
+An enhanced version of u/SarahEiha's TGS, a simple WebM library viewer and player found here:  
 https://www.reddit.com/r/VAMscenes/comments/bt1nl0/tool_local_webm_player_for_web_browser/
 
 TGS is a small, lightweight NodeJS/Express based local web application that lets you browse and play your local collection of videos in a browser window. While it's functional (and perhaps even useful!) as a general tool for browsing your video library, it's designed around the use case of using a web browser in VAM (such as [this one](https://www.reddit.com/r/VAMscenes/comments/c47698/easy_to_use_webplayer_i_wanted_to_share/)) or any other such tool to bring your video library into your virtual environments in a way that's easy to interact with. 
+
+(Technically, TGS actually supports any video format that can be embedded via html5, but currently the webview in VAM only supports the WebM format, so you'll either need to convert your videos to WebM or install a third party webviewer for VAM that supports more types of video.)
 
 **Screenshots**
 
@@ -15,7 +17,7 @@ TGS is a small, lightweight NodeJS/Express based local web application that lets
 Note: if you clone/download from GitHub, you'll need to manually create the public/Videos and public/Thumbnails directories.
 
 
-Here's the documentation for the original project from u/SarahEiha
+Here's the documentation for the original project from u/SarahEiha, to whom a huge thanks is due for building the core of TGS and making it available to be built upon!
 
 >I made a small app in Express to host a local web app that you can use to watch your local WebM collection in VAM using the web browser. I recommend being familiar with using the command line but the knowledge is not necessary.
 >
