@@ -57,7 +57,7 @@ Here's the documentation for the original project from u/SarahEiha, to whom a hu
 
 **Channels**
 
-If you create directories in your public/Videos directory, they'll be presented as channels at the top of the browser screen. All of the new play mode features described below operate within the context of your current channel. There is also an "all" channel which, as you might guess, includes videos from all of your videos plus those at the root of your public/Videos directory. 
+If you create directories in your public/Videos directory, they'll be presented as channels at the top of the browser screen. All of the new play mode features described below operate within the context of your current channel. There is also an "all" channel which, as you might guess, includes videos from all of your channels plus those at the root of your public/Videos directory. 
 
 (The thumbnailer utility has also been updated to function on individual channels, for whatever that's worth.)
 
