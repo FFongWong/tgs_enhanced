@@ -13,7 +13,7 @@ https://imgur.com/a/fzXkdvU
 
 *MEGA*: https://mega.nz/#!i5V3GaST!dDu8CqseaSQOTONihhgNIgBb_5YNDbrW5SVPxMdZqY0
 
-*GitHub*: https://github.com/FFongWong/tgs_enhanced
+*GitHub*: https://github.com/FFongWong/tgs_enhanced/releases/tag/v_1_0
 
 Notes: 
 - If you clone/download from GitHub, you'll need to manually create the public/Videos and public/Thumbnails directories.
