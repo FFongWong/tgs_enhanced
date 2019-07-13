@@ -79,13 +79,13 @@ The standard video viewer how has previous and next buttons which allow you to s
 
 There is now a button on the standard video viewer to toggle between looping on the currently selected video and automatically progressing through all videos in your current channel. There is also a new button on the channel browser screen to jump straight into autoplaying the current channel from the start. (Individual video links on the browser screen still open in loop mode.)
 
-Note: This toggle triggers a page refresh, meaning you can't change your mind late in a video without having to start it over from the begining. It really woudn't be too hard to make it dynamic, but again, lazy. Sorry!
+Note: This toggle triggers a page refresh, meaning you can't change your mind late in a video without having to start it over from the beginning. It really wouldn't be too hard to make it dynamic, but again, lazy. Sorry!
 
 
 
 **Randomize Player Mode**
 
-As you might expect, this mode plays random videos from your current channel. This button appears at the top of both browser and viewer screens so you can quickly jump into the randomized player mode for your current channel from whereever you are, and so that you can quickly trigger a new random video when already in randomize mode. (While in randomize mode there will also be a button to swap back to auto-play mode from your currently selected video
+As you might expect, this mode plays random videos from your current channel. This button appears at the top of both browser and viewer screens so you can quickly jump into the randomized player mode for your current channel from wherever you are, and so that you can quickly trigger a new random video when already in randomize mode. (While in randomize mode there will also be a button to swap back to auto-play mode from your currently selected video
 
 Note: A simple cookie is used to prevent the same video from being chosen twice in a row. If for some reason cookies don't work, you might get repeats fairly often, particularly if your channel doesn't have many videos to select from. 
 
@@ -93,7 +93,7 @@ Note: A simple cookie is used to prevent the same video from being chosen twice 
 
 **Locked Player Mode**
 
-When activated, all controls are removed and the player simply runs in randomized, loop, or auto-play mode until you hit browser back. This allows you to create simple kiosk/dump terminal style displays in VAM that just continually play your videos without distracting UI elements when you don't need them.
+When activated, all controls are removed and the player simply runs in randomized, loop, or auto-play mode until you hit browser back. This allows you to create simple kiosk/dumb terminal style displays in VAM that just continually play your videos without distracting UI elements when you don't need them.
 
 Note: There are two levels of locked mode. When first entering the locked player the menu bar will still provide an unlock button the now playing display. Click the "hide view" button from there, and the menu bar will disappear entirely. When locked and hidden, browser back will be the only way to bring back the menu bar.
 
@@ -101,16 +101,16 @@ Note: There are two levels of locked mode. When first entering the locked player
 
 **Now Playing Display**
 
-All player modes now tell you the name of the file playing. Helpful if you decide you want to move/change/delete a video while watching it, but aren't familar enough with the contents of your library to know the file name from the content of the video.
+All player modes now tell you the name of the file playing. Helpful if you decide you want to move/change/delete a video while watching it, but aren't familiar enough with the contents of your library to know the file name from the content of the video.
 
 
 **Minor Styling Updates**
 
-I've switched to a dark theme since it felt more appropriate for creating a cinematic setting when viewed in VAM, but I've left the light theme stylesheets in the project for anyone who wants to switch back. I've also changed the menu items to buttons to make them a bit easier to interact with in VAM, although it can still be a bit fiddly at times.
+I've switched to a dark theme since it felt more appropriate for creating a cinematic setting when viewed in VAM, but I've left the light theme style sheets in the project for anyone who wants to switch back. I've also changed the menu items to buttons to make them a bit easier to interact with in VAM, although it can still be a bit fiddly at times.
 
 
 ###**What comes next?**
 
 - If someone with good design skills wanted to take a swing at putting together an appealing set of styles for the project, I don't think anyone would object.
 - Someone could also build in support for nested directories. I wouldn't NOT use it, but I also don't want it enough to do it myself. ;)
-- The auto/loop toggle could be made dynamic. As with nexted directories, though, my personal use cases for that aren't strong enough to inspire me to do it now.
+- The auto/loop toggle could be made dynamic. As with nested directories, though, my personal use cases for that aren't strong enough to inspire me to do it now.
