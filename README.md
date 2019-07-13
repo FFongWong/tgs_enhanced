@@ -7,6 +7,7 @@ TGS is a small, lightweight NodeJS/Express based local web application that lets
 (Technically, TGS actually supports any video format that can be embedded via html5, but currently the webview in VAM only supports the WebM format, so you'll either need to convert your videos to WebM or install a third party webviewer for VAM that supports more types of video.)
 
 ###**Screenshots**
+https://imgur.com/a/fzXkdvU
 
 ###**Download**
 
