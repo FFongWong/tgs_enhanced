@@ -10,7 +10,7 @@ TGS is a small, lightweight NodeJS/Express based local web application that lets
 
 ###**Download**
 
-*MEGA*: 
+*MEGA*: https://mega.nz/#!i5V3GaST!dDu8CqseaSQOTONihhgNIgBb_5YNDbrW5SVPxMdZqY0
 
 *GitHub*: https://github.com/FFongWong/tgs_enhanced
 
