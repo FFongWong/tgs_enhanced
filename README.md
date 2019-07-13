@@ -14,8 +14,9 @@ TGS is a small, lightweight NodeJS/Express based local web application that lets
 
 *GitHub*: https://github.com/FFongWong/tgs_enhanced
 
-Note: if you clone/download from GitHub, you'll need to manually create the public/Videos and public/Thumbnails directories.
-
+Notes: 
+- If you clone/download from GitHub, you'll need to manually create the public/Videos and public/Thumbnails directories.
+- If you have an empty directory under public/Videos it may break parts of the application -- this includes the sample channel in the Videos directory in the Mega download, so beware!
 
 ###**Original Instructions**
 
@@ -61,7 +62,9 @@ If you create directories in your public/Videos directory, they'll be presented 
 
 Note: Currently, only one level of directories is supported. Nested channels might be nice, but I'm lazy and that would be harder to implement. :P
 
-Known issue: If you for some reason have a NodeJS version lower than 10 installed, the app won't differentiate between files and directories, and your channel list will include all files at the root directory as well. So, update to the latest version of NodeJS if you can. Yes, I could write a more graceful degradation, but as I mentioned earlier I'm lazy -- and really, unless you are a developer trying to match versions with a project that's locked on an earlier NodeJS state, there's no reason not to update it.
+Known issues: 
+- If you have an empty directory under public/Videos it may break parts of the application -- this includes the sample channel in the Videos directory in the Mega download, so beware!
+- If you for some reason have a NodeJS version lower than 10 installed, the app won't differentiate between files and directories, and your channel list will include all files at the root directory as well. So, update to the latest version of NodeJS if you can. Yes, I could write a more graceful degradation, but as I mentioned earlier I'm lazy -- and really, unless you are a developer trying to match versions with a project that's locked on an earlier NodeJS state, there's no reason not to update it.
 
 
 
