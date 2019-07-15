@@ -1,6 +1,7 @@
 var express = require('express');
 var cookieParser = require('cookie-parser')
 var fs = require('fs');
+var ws = require('windows-shortcuts');
 var FfmpegCommand = require('fluent-ffmpeg');
 
 var router = express.Router();
@@ -47,12 +48,25 @@ function getFileInfo(fileDirents, channelName, shuffle) {
     }   
     
     fileNames.forEach(function(nameItem, nameIndex) {
-        filePaths[nameIndex] = channelName == 'root' ? nameItem : channelName + '/'+ nameItem;
-        console.log('before realpath', filePaths[nameIndex]);
-        filePaths[nameIndex] = fs.realpathSync('./public/Videos/' +filePaths[nameIndex]);
-        console.log('after realpath', filePaths[nameIndex]);
-        filePaths[nameIndex] = filePaths[nameIndex].slice(filePaths[nameIndex].indexOf("public/Videos/") + 14);
-        console.log('after slice', filePaths[nameIndex]);
+        console.log('before analysis', filePaths[nameIndex]);
+
+        if(nameItem.includes('.lnk')) {
+//            filePaths[nameIndex] = fs.realpathSync('./public/Videos/' +filePaths[nameIndex]);
+//            console.log('after realpath', filePaths[nameIndex]);
+            
+            const shortCutInfo = ws.query('./public/Videos/' +filePaths[nameIndex]);
+            filePaths[nameIndex] = shortCutInfo['target'];
+            
+            console.log('before slice', filePaths[nameIndex]);
+            filePaths[nameIndex] = filePaths[nameIndex].slice(filePaths[nameIndex].indexOf("public/Videos/") + 14);
+            console.log('after slice', filePaths[nameIndex]);
+            
+        }
+        else {
+            filePaths[nameIndex] = channelName == 'root' ? nameItem : channelName + '/'+ nameItem;
+        }
+        console.log('after analysis', filePaths[nameIndex]);
+        
     });
     
     return {'fileNames': fileNames, 'filePaths': filePaths};
