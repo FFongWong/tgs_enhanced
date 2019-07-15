@@ -29,11 +29,11 @@ express().use(function (req, res, next) {
 
 
 
-function getFileNames(fileDirents, shuffle) {
+function getFileInfo(fileDirents, channelName, shuffle) {
     
 //    console.log("FILES", fileDirents);
-    
-    const fileNames = fileDirents[0].isDirectory == undefined ?  fileDirents.map(name => name).filter(name => !['.DS_Store'].includes(name)):
+    var filePaths = [] ;
+    var fileNames = fileDirents[0].isDirectory == undefined ?  fileDirents.map(name => name).filter(name => !['.DS_Store'].includes(name)):
                                                           fileDirents
                                                          .filter(dirent => !dirent.isDirectory())
                                                          .map(dirent => dirent.name)
@@ -45,7 +45,17 @@ function getFileNames(fileDirents, shuffle) {
             [fileNames[i], fileNames[j]] = [fileNames[j], fileNames[i]];
         }
     }   
-    return fileNames;
+    
+    fileNames.forEach(function(nameItem, nameIndex) {
+        filePaths[nameIndex] = channelName == 'root' ? nameItem : channelName + '/'+ nameItem;
+        console.log('before realpath', filePaths[nameIndex]);
+        filePaths[nameIndex] = fs.realpathSync('./public/Videos/' +filePaths[nameIndex]);
+        console.log('after realpath', filePaths[nameIndex]);
+        filePaths[nameIndex] = filePaths[nameIndex].slice(filePaths[nameIndex].indexOf("public/Videos/") + 14);
+        console.log('after slice', filePaths[nameIndex]);
+    });
+    
+    return {'fileNames': fileNames, 'filePaths': filePaths};
 }
 
 function getChannelNames(fileDirents) {
@@ -60,6 +70,20 @@ function getChannelNames(fileDirents) {
     
     return channelNames;
 }
+
+
+function arrayUnique(array) {
+    var a = array.concat();
+    for(var i=0; i<a.length; ++i) {
+        for(var j=i+1; j<a.length; ++j) {
+            if(a[i] === a[j])
+                a.splice(j--, 1);
+        }
+    }
+
+    return a;
+}
+
 
 function processChannelFiles(channelPath, currentName, shuffle, req, res, callback) {
     
@@ -92,17 +116,25 @@ function processChannelFiles(channelPath, currentName, shuffle, req, res, callba
             const channelName  = channelItem == 'root' ? false : channelItem;
             const channelFilePath = channelName ? rootFilePath + channelName : rootFilePath;
             
-            var fileNames = getFileNames( fs.readdirSync(channelFilePath, {withFileTypes: true}), shuffle) ;
-            var filePaths = [] ;
             
-            fileNames.forEach(function(nameItem, nameIndex) {
-                filePaths[nameIndex] = channelItem == 'root' ? nameItem : channelItem + '/'+ nameItem;
-            });
+//            var fileNames = getFileNames( fs.readdirSync(channelFilePath, {withFileTypes: true}), shuffle) ;
+//            var filePaths = [] ;
+//    
+//            fileNames.forEach(function(nameItem, nameIndex) {
+//                filePaths[nameIndex] = channelItem == 'root' ? nameItem : channelItem + '/'+ nameItem;
+//            });
+            
+            var fileInfo = getFileInfo( fs.readdirSync(channelFilePath, {withFileTypes: true}), channelItem, shuffle) ;
+            
+            var fileNames = fileInfo['fileNames'] ;
+            var filePaths = fileInfo['filePaths'] ;
+            
             
             if(fileNames.includes(currentName)) {
                 const currentPath = channelItem == 'root' ? currentName : channelItem + '/'+ currentName;
 
-                callbackObject['currentPath'] = currentPath;
+//                callbackObject['currentPath'] = currentPath;
+                callbackObject['currentPath'] = filePaths[fileNames.indexOf(currentName)];
                 
             }
             
@@ -133,6 +165,7 @@ function processChannelFiles(channelPath, currentName, shuffle, req, res, callba
         res.cookie('prevFilename',callbackObject['currentName'], { maxAge: 900000, httpOnly: true });
         
         console.log('CURRENT FILE IS', callbackObject['currentName']);
+        console.log('CURRENT PATH IS', callbackObject['currentPath']);
         
         
         if(currentName) {
