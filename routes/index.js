@@ -50,6 +50,8 @@ function getFileInfo(fileDirents, channelName, shuffle) {
     fileNames.forEach(function(nameItem, nameIndex) {
         console.log('before analysis', filePaths[nameIndex]);
 
+        
+        // special handing of windows shortcuts -- see https://www.npmjs.com/package/windows-shortcuts
         if(nameItem.includes('.lnk')) {
 //            filePaths[nameIndex] = fs.realpathSync('./public/Videos/' +filePaths[nameIndex]);
 //            console.log('after realpath', filePaths[nameIndex]);
