@@ -112,17 +112,15 @@ function getChannelNames(fileDirents) {
 }
 
 
-function arrayUnique(array) {
-    var a = array.concat();
-    for(var i=0; i<a.length; ++i) {
-        for(var j=i+1; j<a.length; ++j) {
-            if(a[i] === a[j])
-                a.splice(j--, 1);
-        }
-    }
-
-    return a;
-}
+function removeDups(names) {
+	  let unique = {};
+	  names.forEach(function(i) {
+	    if(!unique[i]) {
+	      unique[i] = true;
+	    }
+	  });
+	  return Object.keys(unique);
+	}
 
 
 async function processChannelFiles(channelPath, currentName, shuffle, req, res, callback, skipCookie = false) {
@@ -190,6 +188,10 @@ async function processChannelFiles(channelPath, currentName, shuffle, req, res, 
     async function doCallback() {
     	
     	try {
+    		
+    		callbackObject['fileNames'] = removeDups(callbackObject['fileNames']);
+    		callbackObject['filePaths'] = removeDups(callbackObject['filePaths']);
+    		
 	        if(shuffle) {
 	            for (let i = callbackObject['fileNames'].length - 1; i > 0; i--) {
 	                const j = Math.floor(Math.random() * (i + 1));
