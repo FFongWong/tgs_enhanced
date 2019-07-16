@@ -29,8 +29,17 @@ express().use(function (req, res, next) {
 
 
 
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
 
-function getFileInfo(fileDirents, channelName, shuffle) {
+
+async function getFileInfo(fileDirents, channelName, shuffle, fileInfo) {
     
 //    console.log("FILES", fileDirents);
     var filePaths = [] ;
@@ -47,31 +56,55 @@ function getFileInfo(fileDirents, channelName, shuffle) {
         }
     }   
     
-    fileNames.forEach(function(nameItem, nameIndex) {
+//    fileNames.forEach(function(nameItem, nameIndex) {
+    async function resolveLinks(nameItem) {
+    	const nameIndex = fileNames.indexOf(nameItem);
+        filePaths[nameIndex] = channelName == 'root' ? nameItem : channelName + '/'+ nameItem;
+        
         console.log('before analysis', filePaths[nameIndex]);
-
         
         // special handing of windows shortcuts -- see https://www.npmjs.com/package/windows-shortcuts
         if(nameItem.includes('.lnk')) {
 //            filePaths[nameIndex] = fs.realpathSync('./public/Videos/' +filePaths[nameIndex]);
-//            console.log('after realpath', filePaths[nameIndex]);
+            console.log('IS LINK', filePaths[nameIndex]);
             
-            const shortCutInfo = ws.query('./public/Videos/' +filePaths[nameIndex]);
-            filePaths[nameIndex] = shortCutInfo['target'];
+            async function operation() {
+                return new Promise(function(resolve, reject) {
+                	ws.query('./public/Videos/' +filePaths[nameIndex], function(err, shortCutInfo){
+                		fileNames[nameIndex] = fileNames[nameIndex].replace(' - Shortcut.lnk', '').replace('.lnk', '');
+                    	filePaths[nameIndex] = shortCutInfo['target'];
+                        
+                        console.log('before slice', filePaths[nameIndex]);
+                        filePaths[nameIndex] = filePaths[nameIndex].slice(filePaths[nameIndex].indexOf("public\\Videos\\") + 14).replace("\\", '/');
+                        console.log('after slice', filePaths[nameIndex]);
+                        
+                        resolve(true) // successfully fill promise
+                	});
+                    
+                })
+            }
             
-            console.log('before slice', filePaths[nameIndex]);
-            filePaths[nameIndex] = filePaths[nameIndex].slice(filePaths[nameIndex].indexOf("public/Videos/") + 14);
-            console.log('after slice', filePaths[nameIndex]);
+            return operation();
+            
+           
             
         }
         else {
-            filePaths[nameIndex] = channelName == 'root' ? nameItem : channelName + '/'+ nameItem;
+        	console.log('IS NOT LINK', filePaths[nameIndex]);
+//            filePaths[nameIndex] = channelName == 'root' ? nameItem : channelName + '/'+ nameItem;
         }
-        console.log('after analysis', filePaths[nameIndex]);
         
-    });
+    };
     
-    return {'fileNames': fileNames, 'filePaths': filePaths};
+    const promises = fileNames.map(nameItem => resolveLinks(nameItem));
+    await Promise.all(promises).then(function(){
+        console.log('after analysis', fileNames, filePaths);
+        
+        fileInfo['fileNames'] = fileNames;
+        fileInfo['filePaths'] = filePaths;
+
+    });
+
 }
 
 function getChannelNames(fileDirents) {
@@ -101,7 +134,7 @@ function arrayUnique(array) {
 }
 
 
-function processChannelFiles(channelPath, currentName, shuffle, req, res, callback) {
+async function processChannelFiles(channelPath, currentName, shuffle, req, res, callback) {
     
     const rootFilePath = './public/Videos/' ;
     
@@ -119,16 +152,17 @@ function processChannelFiles(channelPath, currentName, shuffle, req, res, callba
     
     var channelList = [ channelPath ];
     
-    try {
+   
     
-        var channelDirents = fs.readdirSync(rootFilePath, {withFileTypes: true}) ;
-        callbackObject['channelNames'] = getChannelNames(channelDirents);
+    var channelDirents = fs.readdirSync(rootFilePath, {withFileTypes: true}) ;
+    callbackObject['channelNames'] = getChannelNames(channelDirents);
+    
+    if(channelPath == 'All') {
+        channelList = ['root'].concat(callbackObject['channelNames']);
+    }
         
-        if(channelPath == 'All') {
-            channelList = ['root'].concat(callbackObject['channelNames']);
-        }
+    async function determinePaths(channelItem) {
         
-        channelList.forEach(function(channelItem, channelIndex){
             const channelName  = channelItem == 'root' ? false : channelItem;
             const channelFilePath = channelName ? rootFilePath + channelName : rootFilePath;
             
@@ -140,7 +174,10 @@ function processChannelFiles(channelPath, currentName, shuffle, req, res, callba
 //                filePaths[nameIndex] = channelItem == 'root' ? nameItem : channelItem + '/'+ nameItem;
 //            });
             
-            var fileInfo = getFileInfo( fs.readdirSync(channelFilePath, {withFileTypes: true}), channelItem, shuffle) ;
+            var fileInfo = {'fileNames': [], 'filePaths': []};
+            await getFileInfo( fs.readdirSync(channelFilePath, {withFileTypes: true}), channelItem, shuffle, fileInfo) ;
+            
+            console.log(fileInfo);
             
             var fileNames = fileInfo['fileNames'] ;
             var filePaths = fileInfo['filePaths'] ;
@@ -157,9 +194,9 @@ function processChannelFiles(channelPath, currentName, shuffle, req, res, callba
             callbackObject['fileNames'] = callbackObject['fileNames'].concat(fileNames);
             callbackObject['filePaths'] = callbackObject['filePaths'].concat(filePaths);
             
-        });
+    };
         
-        
+    async function doCallback() {
         if(shuffle) {
             for (let i = callbackObject['fileNames'].length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -196,11 +233,14 @@ function processChannelFiles(channelPath, currentName, shuffle, req, res, callba
         
 //        console.log("CALLBACK OBJECT: ", callbackObject);
     
-    } catch (thrownError) {
-        error = thrownError;
-    }
+
     
-    callback(error, callbackObject);
+        callback(error, callbackObject);
+    };
+    
+    
+    const promises = channelList.map(channelItem => determinePaths (channelItem));
+    await Promise.all(promises).then(doCallback);
 }
 
 
