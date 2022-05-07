@@ -1,6 +1,7 @@
 var express = require('express');
 var cookieParser = require('cookie-parser')
 var fs = require('fs');
+var ws = require('windows-shortcuts');
 var FfmpegCommand = require('fluent-ffmpeg');
 
 var router = express.Router();
@@ -29,11 +30,11 @@ express().use(function (req, res, next) {
 
 
 
-function getFileNames(fileDirents, shuffle) {
+async function getFileInfo(fileDirents, channelName, shuffle, fileInfo) {
     
 //    console.log("FILES", fileDirents);
-    
-    const fileNames = fileDirents[0].isDirectory == undefined ?  fileDirents.map(name => name).filter(name => !['.DS_Store'].includes(name)):
+    var filePaths = [] ;
+    var fileNames = fileDirents[0].isDirectory == undefined ?  fileDirents.map(name => name).filter(name => !['.DS_Store'].includes(name)):
                                                           fileDirents
                                                          .filter(dirent => !dirent.isDirectory())
                                                          .map(dirent => dirent.name)
@@ -45,7 +46,56 @@ function getFileNames(fileDirents, shuffle) {
             [fileNames[i], fileNames[j]] = [fileNames[j], fileNames[i]];
         }
     }   
-    return fileNames;
+    
+//    fileNames.forEach(function(nameItem, nameIndex) {
+    async function resolveLinks(nameItem) {
+    	const nameIndex = fileNames.indexOf(nameItem);
+        filePaths[nameIndex] = channelName == 'root' ? nameItem : channelName + '/'+ nameItem;
+        
+        console.log('before analysis', filePaths[nameIndex]);
+        
+        // special handing of windows shortcuts -- see https://www.npmjs.com/package/windows-shortcuts
+        if(nameItem.includes('.lnk')) {
+//            filePaths[nameIndex] = fs.realpathSync('./public/Videos/' +filePaths[nameIndex]);
+            console.log('IS LINK', filePaths[nameIndex]);
+            
+            async function operation() {
+                return new Promise(function(resolve, reject) {
+                	ws.query('./public/Videos/' +filePaths[nameIndex], function(err, shortCutInfo){
+                		fileNames[nameIndex] = fileNames[nameIndex].replace(' - Shortcut.lnk', '').replace('.lnk', '');
+                    	filePaths[nameIndex] = shortCutInfo['target'];
+                        
+                        console.log('before slice', filePaths[nameIndex]);
+                        filePaths[nameIndex] = filePaths[nameIndex].slice(filePaths[nameIndex].indexOf("public\\Videos\\") + 14).replace("\\", '/');
+                        console.log('after slice', filePaths[nameIndex]);
+                        
+                        resolve(true) // successfully fill promise
+                	});
+                    
+                })
+            }
+            
+            return operation();
+            
+           
+            
+        }
+        else {
+        	console.log('IS NOT LINK', filePaths[nameIndex]);
+//            filePaths[nameIndex] = channelName == 'root' ? nameItem : channelName + '/'+ nameItem;
+        }
+        
+    };
+    
+    const promises = fileNames.map(nameItem => resolveLinks(nameItem));
+    await Promise.all(promises).then(function(){
+        console.log('after analysis', fileNames, filePaths);
+        
+        fileInfo['fileNames'] = fileNames;
+        fileInfo['filePaths'] = filePaths;
+
+    });
+
 }
 
 function getChannelNames(fileDirents) {
@@ -61,7 +111,19 @@ function getChannelNames(fileDirents) {
     return channelNames;
 }
 
-function processChannelFiles(channelPath, currentName, shuffle, req, res, callback) {
+
+function removeDups(names) {
+	  let unique = {};
+	  names.forEach(function(i) {
+	    if(!unique[i]) {
+	      unique[i] = true;
+	    }
+	  });
+	  return Object.keys(unique);
+	}
+
+
+async function processChannelFiles(channelPath, currentName, shuffle, req, res, callback, skipCookie = false) {
     
     const rootFilePath = './public/Videos/' ;
     
@@ -79,79 +141,105 @@ function processChannelFiles(channelPath, currentName, shuffle, req, res, callba
     
     var channelList = [ channelPath ];
     
-    try {
+   
     
-        var channelDirents = fs.readdirSync(rootFilePath, {withFileTypes: true}) ;
-        callbackObject['channelNames'] = getChannelNames(channelDirents);
+    var channelDirents = fs.readdirSync(rootFilePath, {withFileTypes: true}) ;
+    callbackObject['channelNames'] = getChannelNames(channelDirents);
+    
+    if(channelPath == 'All') {
+        channelList = ['root'].concat(callbackObject['channelNames']);
+    }
         
-        if(channelPath == 'All') {
-            channelList = ['root'].concat(callbackObject['channelNames']);
-        }
+    async function determinePaths(channelItem) {
         
-        channelList.forEach(function(channelItem, channelIndex){
             const channelName  = channelItem == 'root' ? false : channelItem;
             const channelFilePath = channelName ? rootFilePath + channelName : rootFilePath;
             
-            var fileNames = getFileNames( fs.readdirSync(channelFilePath, {withFileTypes: true}), shuffle) ;
-            var filePaths = [] ;
             
-            fileNames.forEach(function(nameItem, nameIndex) {
-                filePaths[nameIndex] = channelItem == 'root' ? nameItem : channelItem + '/'+ nameItem;
-            });
+//            var fileNames = getFileNames( fs.readdirSync(channelFilePath, {withFileTypes: true}), shuffle) ;
+//            var filePaths = [] ;
+//    
+//            fileNames.forEach(function(nameItem, nameIndex) {
+//                filePaths[nameIndex] = channelItem == 'root' ? nameItem : channelItem + '/'+ nameItem;
+//            });
+            
+            var fileInfo = {'fileNames': [], 'filePaths': []};
+            await getFileInfo( fs.readdirSync(channelFilePath, {withFileTypes: true}), channelItem, shuffle, fileInfo) ;
+            
+            console.log(fileInfo);
+            
+            var fileNames = fileInfo['fileNames'] ;
+            var filePaths = fileInfo['filePaths'] ;
+            
             
             if(fileNames.includes(currentName)) {
                 const currentPath = channelItem == 'root' ? currentName : channelItem + '/'+ currentName;
 
-                callbackObject['currentPath'] = currentPath;
+//                callbackObject['currentPath'] = currentPath;
+                callbackObject['currentPath'] = filePaths[fileNames.indexOf(currentName)];
                 
             }
             
             callbackObject['fileNames'] = callbackObject['fileNames'].concat(fileNames);
             callbackObject['filePaths'] = callbackObject['filePaths'].concat(filePaths);
             
-        });
+    };
         
-        
-        if(shuffle) {
-            for (let i = callbackObject['fileNames'].length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [callbackObject['fileNames'][i], callbackObject['fileNames'][j]] = [callbackObject['fileNames'][j], callbackObject['fileNames'][i]];
-                [callbackObject['filePaths'][i], callbackObject['filePaths'][j]] = [callbackObject['filePaths'][j], callbackObject['filePaths'][i]];
-            }
-        }   
-        
-        if(!currentName) {
-            callbackObject['currentName'] = callbackObject['fileNames'][0];
-            callbackObject['currentPath'] = callbackObject['filePaths'][0];
-            
-            if(req.cookies.prevFilename && req.cookies.prevFilename == callbackObject['currentName'] && callbackObject['fileNames'][1] != undefined) {
-                callbackObject['currentName'] = callbackObject['fileNames'][1];
-                callbackObject['currentPath'] = callbackObject['filePaths'][1];
-            }
-        }
-        
-        res.cookie('prevFilename',callbackObject['currentName'], { maxAge: 900000, httpOnly: true });
-        
-        console.log('CURRENT FILE IS', callbackObject['currentName']);
-        
-        
-        if(currentName) {
-            const currentIndex = callbackObject['fileNames'].indexOf(currentName);
-            callbackObject['prevFile'] = callbackObject['fileNames'][currentIndex - 1] != undefined ? callbackObject['fileNames'][currentIndex - 1] : callbackObject['fileNames'][callbackObject['fileNames'].length - 1];
-            callbackObject['nextFile'] = callbackObject['fileNames'][currentIndex + 1] != undefined ? callbackObject['fileNames'][currentIndex + 1] : callbackObject['fileNames'][0];
-        }
-        
-        
-//        callbackObject['channelNames'] = ['All'].concat(callbackObject['channelNames']);
-        
-        
-//        console.log("CALLBACK OBJECT: ", callbackObject);
+    async function doCallback() {
+    	
+    	try {
+    		
+    		callbackObject['fileNames'] = removeDups(callbackObject['fileNames']);
+    		callbackObject['filePaths'] = removeDups(callbackObject['filePaths']);
+    		
+	        if(shuffle) {
+	            for (let i = callbackObject['fileNames'].length - 1; i > 0; i--) {
+	                const j = Math.floor(Math.random() * (i + 1));
+	                [callbackObject['fileNames'][i], callbackObject['fileNames'][j]] = [callbackObject['fileNames'][j], callbackObject['fileNames'][i]];
+	                [callbackObject['filePaths'][i], callbackObject['filePaths'][j]] = [callbackObject['filePaths'][j], callbackObject['filePaths'][i]];
+	            }
+	        }   
+	        
+	        if(!currentName) {
+	            callbackObject['currentName'] = callbackObject['fileNames'][0];
+	            callbackObject['currentPath'] = callbackObject['filePaths'][0];
+	            
+	            if(req.cookies.prevFilename && req.cookies.prevFilename == callbackObject['currentName'] && callbackObject['fileNames'][1] != undefined) {
+	                callbackObject['currentName'] = callbackObject['fileNames'][1];
+	                callbackObject['currentPath'] = callbackObject['filePaths'][1];
+	            }
+	        }
+	        
+	        if(!skipCookie) {
+	        	res.cookie('prevFilename',callbackObject['currentName'], { maxAge: 900000, httpOnly: true });
+	        }
+	        
+	        console.log('CURRENT FILE IS', callbackObject['currentName']);
+	        console.log('CURRENT PATH IS', callbackObject['currentPath']);
+	        
+	        
+	        if(currentName) {
+	            const currentIndex = callbackObject['fileNames'].indexOf(currentName);
+	            callbackObject['prevFile'] = callbackObject['fileNames'][currentIndex - 1] != undefined ? callbackObject['fileNames'][currentIndex - 1] : callbackObject['fileNames'][callbackObject['fileNames'].length - 1];
+	            callbackObject['nextFile'] = callbackObject['fileNames'][currentIndex + 1] != undefined ? callbackObject['fileNames'][currentIndex + 1] : callbackObject['fileNames'][0];
+	        }
+	        
+	        
+	//        callbackObject['channelNames'] = ['All'].concat(callbackObject['channelNames']);
+	        
+	        
+	//        console.log("CALLBACK OBJECT: ", callbackObject);
+    	} catch (thrownError) {
+    		error = thrownError;
+    	}
+
     
-    } catch (thrownError) {
-        error = thrownError;
-    }
+        callback(error, callbackObject);
+    };
     
-    callback(error, callbackObject);
+    
+    const promises = channelList.map(channelItem => determinePaths (channelItem));
+    await Promise.all(promises).then(doCallback);
 }
 
 
@@ -292,7 +380,7 @@ router.get('/thumbnailer/:channel', function(req, res, next) {
     
           convertNow(filePaths, fileNames, 0);
         }
-    });
+    }, true);
     res.redirect('/' + channelPath);
 });
 
