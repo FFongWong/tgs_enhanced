@@ -18,6 +18,7 @@ https://imgur.com/a/fzXkdvU
 Notes: 
 - If you clone/download from GitHub, you'll need to manually create the public/Videos and public/Thumbnails directories.
 - If you have an empty directory under public/Videos it may break parts of the application -- this includes the sample channel in the Videos directory in the Mega download, so beware!
+- Because it's now too large to redistribute as part of the codebase via a basic GitHub account, you'll also need to grab the latest version of ffmpeg for the thumbnailer tool to work. Download it here: https://ffmpeg.org/download.html and then unpack it as ffmpeg/ in the base of the tgs directory. 
 
 ###**Original Instructions**
 
