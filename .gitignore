@@ -1,7 +1,11 @@
 # App specific
 
-public/Videos/*
 public/Thumbnails/*
+public/Videos/*
+public/Videos - Unconverted/*
+public/Shortcut Backups/*
+public/Symlink Backups/*
+ffmpeg/*
 .DS_Store
 public/.DS_Store
 .project
